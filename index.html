@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ARCHIVE OS v4.0 - FINAL SYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue: #1a73e8; --bg: #000; --messenger: #0084ff; --danger: #ff4b2b; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; font-family: 'Kanit', sans-serif; background: #000; overflow: hidden; }
+
+        /* Wallpaper & Layout */
+        #os-container { width: 100vw; height: 100vh; display: flex; padding: 15px; gap: 15px; background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070') center/cover; }
+
+        /* Window Base */
+        .window { background: #fff; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+        .window-header { background: #e0e0e0; padding: 8px 15px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #ccc; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
+        
+        /* Browser (60%) */
+        #browser { flex: 6; }
+        #address-bar { background: #fff; padding: 4px 15px; border-radius: 15px; font-size: 12px; flex: 1; margin: 0 10px; border: 1px solid #ddd; color: #666; font-family: 'JetBrains Mono'; }
+
+        /* Messenger (40%) */
+        #messenger { flex: 4; display: flex; flex-direction: column; }
+        #chat-content { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fdfdfd; }
+
+        /* Video Bubble - แก้ไขความแบน */
+        .vid-card { width: 100%; max-width: 280px; background: #000; border-radius: 12px; overflow: hidden; position: relative; border: 2px solid #eee; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .vid-card:hover { border-color: var(--messenger); transform: translateY(-2px); }
+        .vid-card video { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; opacity: 0.6; }
+        .play-btn { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; cursor: pointer; background: rgba(0,0,0,0.2); }
+        .play-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; color: #000; font-size: 20px; }
+
+        /* Messenger Text Bubbles */
+        .bubble { max-width: 85%; padding: 10px 15px; border-radius: 18px; font-size: 14px; line-height: 1.4; position: relative; }
+        .received { align-self: flex-start; background: #e4e6eb; color: #050505; border-bottom-left-radius: 4px; }
+        .sent { align-self: flex-end; background: var(--messenger); color: #fff; border-bottom-right-radius: 4px; }
+
+        /* Google Page */
+        #google-search-container { padding: 50px 20px; text-align: center; }
+        #search-box { width: 100%; max-width: 450px; padding: 12px 20px; border-radius: 25px; border: 1px solid #dfe1e5; font-size: 16px; outline: none; }
+        .search-res { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px; text-align: left; margin-top: 20px; animation: fadeIn 0.5s; }
+
+        /* Game Over Screen */
+        #game-over { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #4a0000 0%, #000 100%); z-index: 10000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-align: center; }
+        #game-over h1 { font-size: 60px; margin: 0; color: var(--danger); text-shadow: 0 0 20px rgba(255,0,0,0.8); font-weight: bold; }
+        .restart-btn { margin-top: 30px; padding: 15px 40px; background: transparent; color: #fff; border: 2px solid #fff; border-radius: 30px; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        .restart-btn:hover { background: #fff; color: #000; }
+
+        /* Fullscreen Overlay */
+        #video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; justify-content: center; align-items: center; }
+        #fs-video { width: 90%; max-height: 85%; }
+        .close-vid { position: absolute; top: 20px; right: 20px; background: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        #action-btn { width: 100%; padding: 15px; background: #fff; border: none; border-top: 1px solid #eee; cursor: pointer; font-family: 'Kanit'; font-weight: 500; font-size: 14px; transition: 0.2s; }
+        #action-btn:hover { background: #f0f0f0; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glitch-active { animation: shake 0.2s infinite; filter: hue-rotate(90deg) contrast(1.5); }
+        @keyframes shake { 0%{transform:translate(0)} 25%{transform:translate(-5px,5px)} 50%{transform:translate(5px,-5px)} 100%{transform:translate(0)} }
+    </style>
+</head>
+<body>
+
+<div id="os-container">
+    <div class="window" id="browser">
+        <div class="window-header">
+            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            <div id="address-bar">https://www.google.com</div>
+        </div>
+        <div id="google-search-container">
+            <h1 style="font-size: 70px; margin-bottom: 20px;"><span style="color:#4285f4">G</span><span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span></h1>
+            <input type="text" id="search-box" placeholder="ค้นหาข้อมูลลับของชมรม..." onkeydown="if(event.key==='Enter') searchGoogle()">
+            <div id="results-area" style="max-width: 500px; margin: 0 auto;"></div>
+        </div>
+    </div>
+
+    <div class="window" id="messenger">
+        <div class="window-header">
+            <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            <div style="font-size: 12px; margin-left: 10px; color: #666; font-weight: 500;">Messenger</div>
+        </div>
+        <div style="padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 35px; height: 35px; background: #ddd; border-radius: 50%;"></div>
+            <div id="chat-title" style="font-weight: 500; font-size: 14px;">ลมเหนือ</div>
+        </div>
+        <div id="chat-content"></div>
+        <div id="choice-area" style="display: none; padding: 10px; flex-direction: column; gap: 8px;"></div>
+        <button id="action-btn" onclick="nextStep()">ถัดไป</button>
+    </div>
+</div>
+
+<div id="video-overlay">
+    <video id="fs-video" controls></video>
+    <button class="close-vid" onclick="closeFS()">ปิดวิดีโอ</button>
+</div>
+
+<div id="game-over">
+    <h2 style="color: #fff; font-weight: 300;">STATUS: <span id="status-text">MISSING</span></h2>
+    <h1>YOU DIED</h1>
+    <p id="death-reason" style="margin-top: 15px; color: #ccc;">วิญญาณของคุณถูกกักขังไว้ใน ARCHIVE OS</p>
+    <button class="restart-btn" onclick="location.reload()">RESTART SYSTEM</button>
+</div>
+
+<script>
+    const story = [
+        { type: "sys", text: "SYSTEM_ONLINE: คืนค่าการสนทนาล่าสุด" },
+        { type: "received", text: "มาร์ค! มาร์ค! ข่าวดีว่ะ ฉันกู้ไฟล์จาก Harddrive เก่าของชมรมได้แล้ว" },
+        { type: "received", text: "จำได้มั้ย? ตอนที่เราแอบเข้ามาเล่นกันตอนกลางคืนเมื่อปี 2016 ลองดูนี่ดิ", vid: "club_fun.mp4" },
+        { type: "sent", text: "เออ จำได้ 555 อย่างรั่วเลย ตอนนั้นมีแค่เราสามคนเองนิ" },
+        { type: "received", text: "มาร์ค... ดูวินาทีที่ 0:08 ในคลิปใหม่สิ ข้างหลังประตูมีคนแอบมองเราอยู่" },
+        { type: "received", text: "ฉันหาชื่อในบันทึกไม่เจอ นายลองหาชื่อ 'ชมรมลับ2016' ใน Google ให้หน่อยดิ" },
+        { type: "choice", choices: [
+            { text: "ค้นหาข้อมูลใน Google", action: "search" },
+            { text: "ถามเหนือ: นายเจออย่างอื่นในไฟล์มั้ย?", target: 8 }
+        ]},
+        // Path Search
+        { type: "received", text: "ในนั้นมีชื่อ 'กิตติ' รหัสมรณะ MC-404 มาร์ค... ดูคลิปนี้ที่เขาทิ้งไว้", vid: "north_gaming.mp4" },
+        { type: "sys", text: "WARNING: ตรวจพบสัญญาณแทรกแซงจาก ADMIN-04" },
+        { type: "received", text: "อย่าเชื่อคนที่นายคุยด้วย! ฉันคือเหนือตัวจริง ฉันแอบอยู่ในรถตู้!", partner: "ADMIN-04", vid: "van_loop.mp4" },
+        { type: "received", text: "ดู CCTV เดี๋ยวนี้! มันอยู่ข้างหลังนาย!", vid: "cctv_loop.mp4" },
+        { type: "choice", choices: [
+            { text: "รีบวิ่งหนีออกจากห้อง (EXIT)", target: 13 },
+            { text: "หันไปมองข้างหลัง (STAY)", target: 15 }
+        ]},
+        // END 1: Missing
+        { type: "received", text: "นายช้าไป... มาร์ค", vid: "north_scary.mp4", glitch: true },
+        { type: "end", status: "MISSING", reason: "ไม่มีใครพบร่องรอยของคุณในห้องชมรมอีกเลย" },
+        // END 2: Replaced
+        { type: "received", text: "ขอบคุณสำหรับร่างกายใหม่นะ...", vid: "north_scary.mp4", glitch: true },
+        { type: "end", status: "REPLACED", reason: "กิตติได้ใช้ร่างของคุณออกไปจากที่นี่แล้ว" }
+    ];
+
+    let current = -1;
+
+    function nextStep() {
+        current++;
+        if (current >= story.length) return;
+        const d = story[current];
+
+        if (d.type === "end") {
+            showGameOver(d.status, d.reason);
+            return;
+        }
+
+        if (d.type === "choice") {
+            showChoices(d.choices);
+            return;
+        }
+
+        if (d.partner) {
+            document.getElementById('chat-title').innerText = d.partner;
+            document.getElementById('chat-title').style.color = "red";
+        }
+
+        if (d.glitch) {
+            document.getElementById('os-container').classList.add('glitch-active');
+        }
+
+        addBubble(d.type, d.text, d.vid);
+    }
+
+    function addBubble(type, text, vid) {
+        const chat = document.getElementById('chat-content');
+        if (type === "sys") {
+            const s = document.createElement('div');
+            s.style = "text-align:center; font-size:11px; color:#888; font-family:monospace;";
+            s.innerText = `[${text}]`;
+            chat.appendChild(s);
+        } else {
+            const b = document.createElement('div');
+            b.className = `bubble ${type}`;
+            b.innerText = text;
+            chat.appendChild(b);
+
+            if (vid) {
+                const v = document.createElement('div');
+                v.className = "vid-card";
+                v.innerHTML = `
+                    <video src="${vid}"></video>
+                    <div class="play-btn" onclick="openFS('${vid}')">
+                        <div class="play-icon">▶</div>
+                        <span style="font-size:10px;">WATCH VIDEO</span>
+                    </div>
+                `;
+                chat.appendChild(v);
+            }
+        }
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function openFS(src) {
+        const ov = document.getElementById('video-overlay');
+        const v = document.getElementById('fs-video');
+        v.src = src;
+        ov.style.display = 'flex';
+        v.play();
+    }
+
+    function closeFS() {
+        document.getElementById('video-overlay').style.display = 'none';
+        document.getElementById('fs-video').pause();
+    }
+
+    function searchGoogle() {
+        const q = document.getElementById('search-box').value;
+        const res = document.getElementById('results-area');
+        if (q.includes("ชมรมลับ2016")) {
+            res.innerHTML = `
+                <div class="search-res">
+                    <h3 style="color:#1a0dab; margin:0;">[FILE] บันทึกเหตุการณ์ MC-404</h3>
+                    <p style="font-size:13px; color:#444; margin:5px 0;">พบศพนักศึกษาชื่อ 'กิตติ' ถูกขังไว้หลังตู้ชมรมเมื่อปี 2559...</p>
+                    <button onclick="nextStep()" style="background:var(--blue); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">ยืนยันเบาะแส</button>
+                </div>
+            `;
+        } else {
+            res.innerHTML = `<p style="color:#666; font-size:13px; margin-top:10px;">ไม่พบข้อมูลสำหรับ "${q}"</p>`;
+        }
+    }
+
+    function showChoices(choices) {
+        const area = document.getElementById('choice-area');
+        const btn = document.getElementById('action-btn');
+        area.innerHTML = "";
+        area.style.display = "flex";
+        btn.style.display = "none";
+
+        choices.forEach(c => {
+            const b = document.createElement('button');
+            b.style = "padding:10px; border:1px solid var(--messenger); border-radius:10px; background:#fff; color:var(--messenger); cursor:pointer; font-family:'Kanit';";
+            b.innerText = c.text;
+            b.onclick = () => {
+                area.style.display = "none";
+                btn.style.display = "block";
+                if (c.action === "search") {
+                    document.getElementById('search-box').focus();
+                } else {
+                    current = c.target - 1;
+                    nextStep();
+                }
+            };
+            area.appendChild(b);
+        });
+    }
+
+    function showGameOver(status, reason) {
+        document.getElementById('game-over').style.display = 'flex';
+        document.getElementById('status-text').innerText = status;
+        document.getElementById('death-reason').innerText = reason;
+    }
+
+    nextStep();
+</script>
+</body>
+</html>
