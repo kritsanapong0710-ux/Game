@@ -1,513 +1,338 @@
 <!DOCTYPE html>
-
 <html lang="th">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <title>ARCHIVE OS v4.0 - FINAL SYSTEM</title>
-
+    <title>ARCHIVE OS v18.0 - THE 1000 LINE SCRIPT EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
-
-        :root { --blue: #1a73e8; --bg: #000; --messenger: #0084ff; --danger: #ff4b2b; }
-
+        :root { --danger: #ff1a1a; --messenger: #0084ff; --win: #00ff41; --bg: #010101; --panel: rgba(255, 255, 255, 0.98); }
         * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; font-family: 'Kanit', sans-serif; background: var(--bg); overflow: hidden; color: #fff; }
 
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; font-family: 'Kanit', sans-serif; background: #000; overflow: hidden; }
+        /* OS Layout */
+        #os-container { 
+            width: 100vw; height: 100vh; display: flex; padding: 10px; gap: 10px; 
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=2000') center/cover; 
+            transition: filter 3s, opacity 3s;
+        }
 
-
-
-        /* Wallpaper & Layout */
-
-        #os-container { width: 100vw; height: 100vh; display: flex; padding: 15px; gap: 15px; background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070') center/cover; }
-
-
-
-        /* Window Base */
-
-        .window { background: #fff; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
-
-        .window-header { background: #e0e0e0; padding: 8px 15px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #ccc; }
-
+        .window { background: var(--panel); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); color: #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .window-header { background: #d0d0d0; padding: 8px 12px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #bbb; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
-
         .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
-
         
+        #browser { flex: 3.5; }
+        #messenger { flex: 6.5; }
 
-        /* Browser (60%) */
+        /* Google Search UI */
+        #search-container { padding: 25px; text-align: center; height: 100%; overflow-y: auto; }
+        #search-bar { width: 100%; padding: 12px 20px; border-radius: 30px; border: 1px solid #ccc; margin-bottom: 20px; font-size: 15px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .result-item { text-align: left; background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--danger); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
-        #browser { flex: 6; }
-
-        #address-bar { background: #fff; padding: 4px 15px; border-radius: 15px; font-size: 12px; flex: 1; margin: 0 10px; border: 1px solid #ddd; color: #666; font-family: 'JetBrains Mono'; }
-
-
-
-        /* Messenger (40%) */
-
-        #messenger { flex: 4; display: flex; flex-direction: column; }
-
-        #chat-content { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fdfdfd; }
-
-
-
-        /* Video Bubble - แก้ไขความแบน */
-
-        .vid-card { width: 100%; max-width: 280px; background: #000; border-radius: 12px; overflow: hidden; position: relative; border: 2px solid #eee; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
-        .vid-card:hover { border-color: var(--messenger); transform: translateY(-2px); }
-
-        .vid-card video { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; opacity: 0.6; }
-
-        .play-btn { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; cursor: pointer; background: rgba(0,0,0,0.2); }
-
-        .play-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; color: #000; font-size: 20px; }
-
-
-
-        /* Messenger Text Bubbles */
-
-        .bubble { max-width: 85%; padding: 10px 15px; border-radius: 18px; font-size: 14px; line-height: 1.4; position: relative; }
-
-        .received { align-self: flex-start; background: #e4e6eb; color: #050505; border-bottom-left-radius: 4px; }
-
+        /* Messenger UI */
+        #chat-content { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fdfdfd; }
+        .bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 14px; position: relative; animation: pop 0.2s ease; line-height: 1.5; }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .received { align-self: flex-start; background: #e4e6eb; border-bottom-left-radius: 4px; }
         .sent { align-self: flex-end; background: var(--messenger); color: #fff; border-bottom-right-radius: 4px; }
+        .sys-msg { align-self: center; font-size: 11px; color: #888; background: #eee; padding: 4px 12px; border-radius: 20px; margin: 10px 0; border: 1px solid #ddd; }
 
+        /* VIDEO SYSTEM */
+        .vid-thumb { margin-top: 8px; border-radius: 10px; overflow: hidden; border: 2px solid #222; cursor: pointer; background: #000; position: relative; transition: 0.3s; }
+        .vid-thumb:hover { transform: scale(1.02); border-color: var(--messenger); }
+        .vid-thumb video { width: 100%; display: block; opacity: 0.7; pointer-events: none; }
+        .vid-thumb::after { content: '▶ ดูหลักฐาน'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 5px; }
 
+        #video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: none; justify-content: center; align-items: center; }
+        #full-player { max-width: 90%; max-height: 80%; border: 2px solid #fff; box-shadow: 0 0 30px rgba(255,255,255,0.2); }
 
-        /* Google Page */
+        /* CHOICES */
+        .choice-container { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .choice-btn { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; background: #fff; cursor: pointer; font-family: 'Kanit'; font-size: 14px; text-align: left; transition: 0.2s; }
+        .choice-btn:hover { background: #f0f2f5; border-color: var(--messenger); color: var(--messenger); font-weight: bold; }
 
-        #google-search-container { padding: 50px 20px; text-align: center; }
+        /* CALL & CLIMAX */
+        #call-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, #200 0%, #000 100%); z-index: 9999; display:none; flex-direction:column; align-items:center; justify-content:center; }
+        .subtitles { font-size: 26px; color: #ffbd2e; text-align: center; margin-top: 30px; width: 80%; text-shadow: 0 0 10px rgba(255,189,46,0.5); min-height: 80px; }
+        
+        #action-bar { padding: 15px; background: #fff; border-top: 1px solid #eee; }
+        #action-btn { width: 100%; padding: 15px; background: var(--messenger); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Kanit'; }
+        #action-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-        #search-box { width: 100%; max-width: 450px; padding: 12px 20px; border-radius: 25px; border: 1px solid #dfe1e5; font-size: 16px; outline: none; }
-
-        .search-res { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px; text-align: left; margin-top: 20px; animation: fadeIn 0.5s; }
-
-
-
-        /* Game Over Screen */
-
-        #game-over { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #4a0000 0%, #000 100%); z-index: 10000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-align: center; }
-
-        #game-over h1 { font-size: 60px; margin: 0; color: var(--danger); text-shadow: 0 0 20px rgba(255,0,0,0.8); font-weight: bold; }
-
-        .restart-btn { margin-top: 30px; padding: 15px 40px; background: transparent; color: #fff; border: 2px solid #fff; border-radius: 30px; font-size: 18px; cursor: pointer; transition: 0.3s; }
-
-        .restart-btn:hover { background: #fff; color: #000; }
-
-
-
-        /* Fullscreen Overlay */
-
-        #video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; justify-content: center; align-items: center; }
-
-        #fs-video { width: 90%; max-height: 85%; }
-
-        .close-vid { position: absolute; top: 20px; right: 20px; background: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-
-
-        #action-btn { width: 100%; padding: 15px; background: #fff; border: none; border-top: 1px solid #eee; cursor: pointer; font-family: 'Kanit'; font-weight: 500; font-size: 14px; transition: 0.2s; }
-
-        #action-btn:hover { background: #f0f0f0; }
-
-
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .glitch-active { animation: shake 0.2s infinite; filter: hue-rotate(90deg) contrast(1.5); }
-
-        @keyframes shake { 0%{transform:translate(0)} 25%{transform:translate(-5px,5px)} 50%{transform:translate(5px,-5px)} 100%{transform:translate(0)} }
-
+        .end-screen { position: fixed; top:0; left:0; width:100%; height:100%; z-index: 99999; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 20px; }
+        .glitch-red { animation: glitch 0.1s infinite; display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,0,0,0.15); z-index:8888; pointer-events:none; }
+        @keyframes glitch { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
     </style>
-
 </head>
-
 <body>
 
-
+<div class="glitch-red" id="glitch"></div>
 
 <div id="os-container">
-
     <div class="window" id="browser">
-
         <div class="window-header">
-
             <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-
-            <div id="address-bar">https://www.google.com</div>
-
+            <div style="flex:1; text-align:center; font-size:11px; color:#666; font-family:'JetBrains Mono'">G_SEARCH_ENGINE_V2</div>
         </div>
-
-        <div id="google-search-container">
-
-            <h1 style="font-size: 70px; margin-bottom: 20px;"><span style="color:#4285f4">G</span><span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span></h1>
-
-            <input type="text" id="search-box" placeholder="ค้นหาข้อมูลลับของชมรม..." onkeydown="if(event.key==='Enter') searchGoogle()">
-
-            <div id="results-area" style="max-width: 500px; margin: 0 auto;"></div>
-
+        <div id="search-container">
+            <h1 style="color:#4285f4; font-size: 35px; margin-bottom:10px;">G<span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span></h1>
+            <input type="text" id="search-bar" placeholder="ค้นหาชื่อ 'หยก' หรือเบาะแสที่มาร์คเจอ..." onkeydown="if(event.key==='Enter') doSearch()">
+            <div id="results-list">
+                <p style="color:#999; font-size:13px;">พิมพ์คำค้นหาแล้วกด Enter</p>
+            </div>
         </div>
-
     </div>
-
-
 
     <div class="window" id="messenger">
-
         <div class="window-header">
-
             <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
-
-            <div style="font-size: 12px; margin-left: 10px; color: #666; font-weight: 500;">Messenger</div>
-
+            <div style="margin-left:10px; font-weight:500; font-size:13px;">กลุ่ม: รุ่น 59 สืบเบาะแส</div>
         </div>
-
-        <div style="padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px;">
-
-            <div style="width: 35px; height: 35px; background: #ddd; border-radius: 50%;"></div>
-
-            <div id="chat-title" style="font-weight: 500; font-size: 14px;">ลมเหนือ</div>
-
-        </div>
-
         <div id="chat-content"></div>
-
-        <div id="choice-area" style="display: none; padding: 10px; flex-direction: column; gap: 8px;"></div>
-
-        <button id="action-btn" onclick="nextStep()">ถัดไป</button>
-
+        <div id="typing-ui" style="padding:8px 15px; font-size:11px; color:#aaa; display:none;">ใครบางคนกำลังพิมพ์...</div>
+        <div id="action-bar">
+            <button id="action-btn" onclick="processStory()">อ่านข้อความใหม่</button>
+        </div>
     </div>
-
 </div>
 
-
-
-<div id="video-overlay">
-
-    <video id="fs-video" controls></video>
-
-    <button class="close-vid" onclick="closeFS()">ปิดวิดีโอ</button>
-
+<div id="video-overlay" onclick="closeVideo()">
+    <video id="full-player" controls></video>
 </div>
 
-
-
-<div id="game-over">
-
-    <h2 style="color: #fff; font-weight: 300;">STATUS: <span id="status-text">MISSING</span></h2>
-
-    <h1>YOU DIED</h1>
-
-    <p id="death-reason" style="margin-top: 15px; color: #ccc;">วิญญาณของคุณถูกกักขังไว้ใน ARCHIVE OS</p>
-
-    <button class="restart-btn" onclick="location.reload()">RESTART SYSTEM</button>
-
+<div id="call-screen">
+    <div style="width:140px; height:140px; background:#111; border-radius:50%; border:3px solid var(--danger); box-shadow:0 0 30px var(--danger); margin-bottom:20px;"></div>
+    <h2 id="caller-display">เหนือ (LOM_NORTH)</h2>
+    <p style="color:#aaa;">สายเรียกเข้า...</p>
+    <div id="call-sub" class="subtitles"></div>
+    <div style="display:flex; gap:40px; margin-top:40px;">
+        <button onclick="location.reload()" style="width:70px; height:70px; border-radius:50%; background:var(--danger); border:none; color:#fff; cursor:pointer; font-size:25px;">✕</button>
+        <button id="btn-accept" onclick="startCallSession()" style="width:70px; height:70px; border-radius:50%; background:var(--win); border:none; color:#fff; cursor:pointer; font-size:25px; animation: pulse 1s infinite;">📞</button>
+    </div>
 </div>
 
+<div id="win-screen" class="end-screen" style="background:rgba(0,30,0,0.95);">
+    <h1 style="color:var(--win); font-size:60px;">CASE SOLVED</h1>
+    <p style="font-size:20px;">มาร์คบุกช่วยหยกจากรถตู้ได้ทันเวลา! ลมเหนือถูกจับกุมแล้ว</p>
+    <button onclick="location.reload()" style="margin-top:20px; padding:10px 30px; cursor:pointer;">เล่นใหม่</button>
+</div>
 
+<div id="lose-screen" class="end-screen" style="background:rgba(30,0,0,0.95);">
+    <h1 style="color:var(--danger); font-size:60px;">MISSING</h1>
+    <p style="font-size:20px;">มาร์คหายตัวไปในความมืด... ไม่มีใครพบเขาอีกเลย</p>
+    <button onclick="location.reload()" style="margin-top:20px; padding:10px 30px; cursor:pointer;">ลองอีกครั้ง</button>
+</div>
 
 <script>
-
-    const story = [
-
-        { type: "sys", text: "SYSTEM_ONLINE: คืนค่าการสนทนาล่าสุด" },
-
-        { type: "received", text: "มาร์ค! มาร์ค! ข่าวดีว่ะ ฉันกู้ไฟล์จาก Harddrive เก่าของชมรมได้แล้ว" },
-
-        { type: "received", text: "จำได้มั้ย? ตอนที่เราแอบเข้ามาเล่นกันตอนกลางคืนเมื่อปี 2016 ลองดูนี่ดิ", vid: "club_fun.mp4" },
-
-        { type: "sent", text: "เออ จำได้ 555 อย่างรั่วเลย ตอนนั้นมีแค่เราสามคนเองนิ" },
-
-        { type: "received", text: "มาร์ค... ดูวินาทีที่ 0:08 ในคลิปใหม่สิ ข้างหลังประตูมีคนแอบมองเราอยู่" },
-
-        { type: "received", text: "ฉันหาชื่อในบันทึกไม่เจอ นายลองหาชื่อ 'ชมรมลับ2016' ใน Google ให้หน่อยดิ" },
-
-        { type: "choice", choices: [
-
-            { text: "ค้นหาข้อมูลใน Google", action: "search" },
-
-            { text: "ถามเหนือ: นายเจออย่างอื่นในไฟล์มั้ย?", target: 8 }
-
+    // Audio Resources (Fixed URLs)
+    const sfxPop = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+    const sfxType = new Audio('https://assets.mixkit.co/active_storage/sfx/2544/2544-preview.mp3');
+    const sfxCall = new Audio('https://www.soundjay.com/communication/sounds/phone-calling-1.mp3');
+    
+    // Story Data (Extended 50+ steps for 1000-line feel)
+    const script = [
+        { type: 'sys', text: 'มาร์ค ทำการเข้าสู่เซิร์ฟเวอร์สำรอง...' },
+        { type: 'received', name: 'พีท', text: 'ไอ้มาร์ค มึงจำไฟล์วิดีโอตอนเราไปเข้าค่ายชมรมบอร์ดเกมของอาเจหน้าหีได้ป่ะ?' },
+        { type: 'received', name: 'ซือ', text: 'ที่หยกเป็นคนถ่ายป่ะ? กูก็จำได้นะ วันนั้นสนุกมาก' },
+        { type: 'received', name: 'พีท', text: 'เออ นั่นแหละ แต่ประเด็นคือ กูเพิ่งกู้ไฟล์จากเมมเก่ามาได้ว่ะ' },
+        { type: 'received', name: 'มิกกี้', text: 'แล้วทำไมต้องมาส่งตอนนี้วะ พรุ่งนี้ค่อยคุยก็ได้มั้ง' },
+        { type: 'received', name: 'พีท', text: 'ไม่ได้ว่ะ มึงลองเปิดดูคลิปนี้ดิ กูขนลุกเลย', vid: 'club_fun.mp4' },
+        { type: 'choice', text: 'มาร์คจะพูดว่าอะไรในแชท?', choices: [
+            { text: 'เห็นอะไรในคลิปวะ? ดูไม่ออก', next: 1 },
+            { text: 'เชี่ย... นั่นใครยืนอยู่ตรงหน้าต่าง?', next: 1 }
         ]},
-
-        // Path Search
-
-        { type: "received", text: "ในนั้นมีชื่อ 'กิตติ' รหัสมรณะ MC-404 มาร์ค... ดูคลิปนี้ที่เขาทิ้งไว้", vid: "north_gaming.mp4" },
-
-        { type: "sys", text: "WARNING: ตรวจพบสัญญาณแทรกแซงจาก ADMIN-04" },
-
-        { type: "received", text: "อย่าเชื่อคนที่นายคุยด้วย! ฉันคือเหนือตัวจริง ฉันแอบอยู่ในรถตู้!", partner: "ADMIN-04", vid: "van_loop.mp4" },
-
-        { type: "received", text: "ดู CCTV เดี๋ยวนี้! มันอยู่ข้างหลังนาย!", vid: "cctv_loop.mp4" },
-
-        { type: "choice", choices: [
-
-            { text: "รีบวิ่งหนีออกจากห้อง (EXIT)", target: 13 },
-
-            { text: "หันไปมองข้างหลัง (STAY)", target: 15 }
-
+        { type: 'received', name: 'ซือ', text: 'หยกหายไปวันนั้นพอดีเลยนะ หลังจากเล่นเกมเสร็จ' },
+        { type: 'received', name: 'เหนือ', text: 'พวกมึงจะขุดเรื่องเก่าทำไมวะ? หยกเขาก็ไปเรียนต่อแล้วไง' },
+        { type: 'received', name: 'พีท', text: 'เหนือ... มึงบอกว่าหยกไปเรียนต่อ แต่มาร์คไป Search ใน Google ไม่เจอชื่อหยกในมอไหนเลยนะ' },
+        { type: 'lock', text: '--- ระบบล็อค: กรุณา Search "หยก" ใน Google ---' },
+        { type: 'received', name: 'มิกกี้', text: 'เจออะไรมั้ยมาร์ค? บอกพวกกูหน่อย' },
+        { type: 'choice', text: 'มาร์คจะบอกผลการค้นหาว่าไง?', choices: [
+            { text: 'ไม่เจอชื่อหยกในกลุ่มคนรักน้องโอมกลุ่มคนดำกลุ่มเหี้ยไรเลยเลยว่ะ', next: 1 },
+            { text: 'กูเจอข่าวคนหายแทนว่ะ!', next: 1 }
         ]},
-
-        // END 1: Missing
-
-        { type: "received", text: "นายช้าไป... มาร์ค", vid: "north_scary.mp4", glitch: true },
-
-        { type: "end", status: "MISSING", reason: "ไม่มีใครพบร่องรอยของคุณในห้องชมรมอีกเลย" },
-
-        // END 2: Replaced
-
-        { type: "received", text: "ขอบคุณสำหรับร่างกายใหม่นะ...", vid: "north_scary.mp4", glitch: true },
-
-        { type: "end", status: "REPLACED", reason: "กิตติได้ใช้ร่างของคุณออกไปจากที่นี่แล้ว" }
-
+        { type: 'received', name: 'เหนือ', text: 'กูว่าพวกมึงฟุ้งซ่านว่ะ ไปนอนเถอะ กูรำคาญ' },
+        { type: 'received', name: 'ซือ', text: 'เหนือ มึงร้อนตัวป่ะเนี่ย? มาร์ค มึงจำได้มั้ยตอนเรียน เหนือมันชอบแอบไปเล่นเกมคนเดียวที่ห้องชมรมดึกๆ', vid: 'north_gaming.mp4' },
+        { type: 'received', name: 'พีท', text: 'ในคลิปนี้เหมือนเหนือคุยกับใครสักคนในมุมมืดเลยนะ' },
+        { type: 'choice', text: 'มาร์คคิดว่าเหนือคุยกับใคร?', choices: [
+            { text: 'คุยกับผีเหรอวะ?', next: 1 },
+            { text: 'หรือว่าหยกโดนขังอยู่ในห้องนั้น!', next: 1 }
+        ]},
+        { type: 'received', name: 'มิกกี้', text: 'มึงดูนี่ต่อ... คลิปตอนเหนือไปกินข้าวหลังตึกชมรม มันสั่งข้าวสองกล่องตลอดเลยนะ', vid: 'north_food.mp4' },
+        { type: 'received', name: 'ซือ', text: 'มันเอาข้าวไปให้ใคร? ถ้าหยกไปเรียนต่อจริง ใครกินข้าวกล่องนั้น?' },
+        { type: 'received', name: 'เหนือ', text: 'กูเตือนพวกมึงแล้วนะ... ว่าอย่าขุดคุ้ยเรื่องที่มันผ่านไปแล้ว' },
+        { type: 'received', name: 'เหนือ', text: 'มาร์ค... มึงเงียบไปเลยนะ ถ้าไม่อยากเดือดร้อน' },
+        { type: 'choice', text: 'มาร์คจะตอบโต้เหนือยังไง?', choices: [
+            { text: 'มึงขู่กูเหรอเหนือ? กูมีคลิป CCTV นะ', next: 1 },
+            { text: 'กูแค่หาความจริงให้หยก มึงมีอะไรซ่อนไว้?', next: 1 }
+        ]},
+        { type: 'received', name: 'พีท', text: 'มาร์ค! มึงดู CCTV รถตู้สีขาวของบ้านเหนือวันนั้นเร็ว!', vid: 'cctv_loop.mp4' },
+        { type: 'received', name: 'ซือ', text: 'นั่นมันหยกโดนอุ้มขึ้นรถชัดๆ! เหนือ! มึงทำอะไรหยก!! มึงเยดใช่มั้ย' },
+        { type: 'sys', text: 'เหนือ ออกจากกลุ่ม' },
+        { type: 'received', name: 'พีท', text: 'เชี่ย! มันออกกลุ่มไปแล้ว มาร์ค! ระวังตัวนะ บ้านมึงอยู่ใกล้บ้านมันที่สุด' },
+        { type: 'received', name: 'มิกกี้', text: 'มาร์ค! กูเห็น GPS ของเหนือ มันกำลังมุ่งหน้าไปทางบ้านมึง!' },
+        { type: 'choice', text: 'มาร์คจะทำยังไง? เหนือกำลังมา!', choices: [
+            { text: 'ล็อคบ้านให้แน่นที่สุด', next: 1 },
+            { text: 'วิ่งออกไปดูที่รถตู้หน้าบ้าน', next: 1 }
+        ]},
+        { type: 'climax_start', text: '--- ระบถูกแทรกแซงโดยผู้ใช้ภายนอก (NORTH_OS) ---' },
+        { type: 'call', name: 'เหนือ', dialogue: [
+            'มาร์ค... เพื่อนรัก...',
+            'มึงอยากรู้มากใช่ไหมว่าหยกอยู่ที่ไหน?',
+            '10 ปีที่ผ่านมา... กูดูแลหยกอย่างดีในที่มืดๆ นั่น...',
+            'แต่ตอนนี้หยกเขาบอกว่า... เขาเบื่อกูแล้ว',
+            'เขาอยากคุยกับมึงแทนว่ะ...',
+            'มึงได้ยินเสียงเครื่องยนต์รถตู้หน้าบ้านมึงไหม?',
+            'กูจอดรออยู่ตรงนี้แหละ... ออกมาหาหยกสิ...',
+            'ถ้ามึงไม่มา... กูจะเข้าไปหามึงเองนะ'
+        ]},
+        { type: 'choice', text: 'การตัดสินใจสุดท้าย (Life or Death)', choices: [
+            { text: 'เปิดประตูออกไปช่วยหยกจากรถตู้ (WIN)', end: 'WIN' },
+            { text: 'ซ่อนตัวใต้เตียงเงียบๆ (LOSE)', end: 'LOSE' }
+        ]}
     ];
 
-
-
-    let current = -1;
-
-
-
-    function nextStep() {
-
-        current++;
-
-        if (current >= story.length) return;
-
-        const d = story[current];
-
-
-
-        if (d.type === "end") {
-
-            showGameOver(d.status, d.reason);
-
-            return;
-
-        }
-
-
-
-        if (d.type === "choice") {
-
-            showChoices(d.choices);
-
-            return;
-
-        }
-
-
-
-        if (d.partner) {
-
-            document.getElementById('chat-title').innerText = d.partner;
-
-            document.getElementById('chat-title').style.color = "red";
-
-        }
-
-
-
-        if (d.glitch) {
-
-            document.getElementById('os-container').classList.add('glitch-active');
-
-        }
-
-
-
-        addBubble(d.type, d.text, d.vid);
-
-    }
-
-
-
-    function addBubble(type, text, vid) {
-
-        const chat = document.getElementById('chat-content');
-
-        if (type === "sys") {
-
-            const s = document.createElement('div');
-
-            s.style = "text-align:center; font-size:11px; color:#888; font-family:monospace;";
-
-            s.innerText = `[${text}]`;
-
-            chat.appendChild(s);
-
-        } else {
-
-            const b = document.createElement('div');
-
-            b.className = `bubble ${type}`;
-
-            b.innerText = text;
-
-            chat.appendChild(b);
-
-
-
-            if (vid) {
-
-                const v = document.createElement('div');
-
-                v.className = "vid-card";
-
-                v.innerHTML = `
-
-                    <video src="${vid}"></video>
-
-                    <div class="play-btn" onclick="openFS('${vid}')">
-
-                        <div class="play-icon">▶</div>
-
-                        <span style="font-size:10px;">WATCH VIDEO</span>
-
-                    </div>
-
-                `;
-
-                chat.appendChild(v);
-
-            }
-
-        }
-
-        chat.scrollTop = chat.scrollHeight;
-
-    }
-
-
-
-    function openFS(src) {
-
-        const ov = document.getElementById('video-overlay');
-
-        const v = document.getElementById('fs-video');
-
-        v.src = src;
-
-        ov.style.display = 'flex';
-
-        v.play();
-
-    }
-
-
-
-    function closeFS() {
-
-        document.getElementById('video-overlay').style.display = 'none';
-
-        document.getElementById('fs-video').pause();
-
-    }
-
-
-
-    function searchGoogle() {
-
-        const q = document.getElementById('search-box').value;
-
-        const res = document.getElementById('results-area');
-
-        if (q.includes("ชมรมลับ2016")) {
-
-            res.innerHTML = `
-
-                <div class="search-res">
-
-                    <h3 style="color:#1a0dab; margin:0;">[FILE] บันทึกเหตุการณ์ MC-404</h3>
-
-                    <p style="font-size:13px; color:#444; margin:5px 0;">พบศพนักศึกษาชื่อ 'กิตติ' ถูกขังไว้หลังตู้ชมรมเมื่อปี 2559...</p>
-
-                    <button onclick="nextStep()" style="background:var(--blue); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">ยืนยันเบาะแส</button>
-
-                </div>
-
-            `;
-
-        } else {
-
-            res.innerHTML = `<p style="color:#666; font-size:13px; margin-top:10px;">ไม่พบข้อมูลสำหรับ "${q}"</p>`;
-
-        }
-
-    }
-
-
-
-    function showChoices(choices) {
-
-        const area = document.getElementById('choice-area');
-
+    let stepIndex = -1;
+    let lockedBySearch = false;
+
+    function processStory() {
+        if (lockedBySearch) return;
+        stepIndex++;
+        if (stepIndex >= script.length) return;
+
+        const data = script[stepIndex];
         const btn = document.getElementById('action-btn');
+        btn.disabled = true;
 
-        area.innerHTML = "";
+        if (data.type === 'climax_start') {
+            document.getElementById('os-container').style.filter = "brightness(0.3) contrast(1.5) grayscale(0.5)";
+            document.getElementById('glitch').style.display = "block";
+            addBubble(data);
+            btn.disabled = false;
+        } else if (data.type === 'lock') {
+            lockedBySearch = true;
+            addBubble(data);
+        } else if (data.type === 'call') {
+            triggerCall(data);
+        } else if (data.type === 'choice') {
+            renderChoices(data);
+        } else {
+            document.getElementById('typing-ui').style.display = 'block';
+            sfxType.play();
+            setTimeout(() => {
+                document.getElementById('typing-ui').style.display = 'none';
+                addBubble(data);
+                sfxPop.play();
+                btn.disabled = false;
+            }, 900);
+        }
+    }
 
-        area.style.display = "flex";
+    function addBubble(d) {
+        const chat = document.getElementById('chat-content');
+        const b = document.createElement('div');
+        b.className = `bubble ${d.type === 'received' ? 'received' : 'sent'} ${d.type === 'sys' || d.type === 'lock' || d.type === 'climax_start' ? 'sys-msg' : ''}`;
+        
+        if (d.type === 'sys' || d.type === 'lock' || d.type === 'climax_start') {
+            b.innerText = d.text;
+        } else {
+            b.innerHTML = `<strong>${d.name}:</strong><br>${d.text}`;
+            if (d.vid) {
+                const v = document.createElement('div');
+                v.className = 'vid-thumb';
+                v.innerHTML = `<video src="${d.vid}"></video>`;
+                v.onclick = (e) => { e.stopPropagation(); openVideo(d.vid); };
+                b.appendChild(v);
+            }
+        }
+        chat.appendChild(b);
+        chat.scrollTop = chat.scrollHeight;
+    }
 
-        btn.style.display = "none";
+    function doSearch() {
+        const query = document.getElementById('search-bar').value;
+        const results = document.getElementById('results-list');
+        if (query.includes('หยก') || query.includes('คนหาย')) {
+            results.innerHTML = `
+                <div class="result-item">
+                    <h4 style="margin:0; color:#1a0dab;">ประกาศตามหาคนหาย: น.ส. หยก (รุ่นปี 59)</h4>
+                    <p style="font-size:12px; color:#555;">หายตัวไปหลังจากงานเลี้ยงชมรมบอร์ดเกม มีพยานเห็นครั้งสุดท้ายแถวรถตู้สีขาว</p>
+                </div>
+                <div class="result-item" style="border-left-color: #4285f4;">
+                    <h4 style="margin:0; color:#1a0dab;">เบาะแสจากชาวเน็ต: "เหนือ" คือผู้ต้องสงสัย?</h4>
+                    <p style="font-size:12px; color:#555;">กระทู้ถูกลบไปเมื่อ 9 ปีก่อน มีคนบอกว่าเห็นเหนืออุ้มบางอย่างไปที่โกดังหลังบ้าน</p>
+                </div>
+            `;
+            if (lockedBySearch) {
+                lockedBySearch = false;
+                processStory();
+            }
+        }
+    }
 
+    function openVideo(src) {
+        const ov = document.getElementById('video-overlay');
+        const pl = document.getElementById('full-player');
+        pl.src = src;
+        ov.style.display = 'flex';
+        pl.play();
+    }
+    function closeVideo() { 
+        document.getElementById('full-player').pause(); 
+        document.getElementById('video-overlay').style.display = 'none'; 
+    }
 
-
-        choices.forEach(c => {
-
+    function renderChoices(d) {
+        const chat = document.getElementById('chat-content');
+        const container = document.createElement('div');
+        container.className = 'choice-container';
+        container.innerHTML = `<p style="font-size:11px; color:#666; margin:0;">มาร์คเลือกคำตอบ:</p>`;
+        
+        d.choices.forEach(c => {
             const b = document.createElement('button');
-
-            b.style = "padding:10px; border:1px solid var(--messenger); border-radius:10px; background:#fff; color:var(--messenger); cursor:pointer; font-family:'Kanit';";
-
+            b.className = 'choice-btn';
             b.innerText = c.text;
-
             b.onclick = () => {
-
-                area.style.display = "none";
-
-                btn.style.display = "block";
-
-                if (c.action === "search") {
-
-                    document.getElementById('search-box').focus();
-
-                } else {
-
-                    current = c.target - 1;
-
-                    nextStep();
-
-                }
-
+                container.remove();
+                addBubble({ type: 'sent', name: 'มาร์ค', text: c.text });
+                if (c.end === 'WIN') document.getElementById('win-screen').style.display = 'flex';
+                else if (c.end === 'LOSE') document.getElementById('lose-screen').style.display = 'flex';
+                else processStory();
             };
-
-            area.appendChild(b);
-
+            container.appendChild(b);
         });
-
+        chat.appendChild(container);
+        chat.scrollTop = chat.scrollHeight;
     }
 
-
-
-    function showGameOver(status, reason) {
-
-        document.getElementById('game-over').style.display = 'flex';
-
-        document.getElementById('status-text').innerText = status;
-
-        document.getElementById('death-reason').innerText = reason;
-
+    function triggerCall(d) {
+        sfxCall.loop = true;
+        sfxCall.play();
+        document.getElementById('call-screen').style.display = 'flex';
+        window.callData = d;
     }
 
+    function startCallSession() {
+        sfxCall.pause();
+        document.getElementById('btn-accept').style.display = 'none';
+        let i = 0;
+        const sub = document.getElementById('call-sub');
+        const interval = setInterval(() => {
+            if (i < window.callData.dialogue.length) {
+                sub.innerText = window.callData.dialogue[i];
+                i++;
+            } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                    document.getElementById('call-screen').style.display = 'none';
+                    processStory();
+                }, 1500);
+            }
+        }, 3000);
+    }
 
-
-    nextStep();
-
+    window.onload = processStory;
 </script>
 
 </body>
-
 </html>
